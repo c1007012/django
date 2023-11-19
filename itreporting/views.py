@@ -3,10 +3,23 @@ from django.contrib.auth.models import User
 from .models import Issue
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+import requests
 
 def home(request): 
+    url = 'https://api.openweathermap.org/data/2.5/weather?q={},{}&units=metric&appid={}'
+    cities = [('Sheffield', 'UK'), ('Melaka', 'Malaysia'), ('Bandung', 'Indonesia')]
+    weather_data = []
+    api_key = '57e15deb0c8b530bc2582d04845e0d43'
+    for city in cities:
+        city_weather = requests.get(url.format(city[0], city[1], api_key)).json() # Request the API data and convert the JSON to Python data types
+        weather = {
+            'city': city_weather['name'] + ', ' +  city_weather['sys'] ['country'],
+            'temperature': city_weather['main']['temp'],
+            'description': city_weather['weather'][0]['description'] }
+        weather_data.append(weather) # Add the data for the current city into our list
+    return render(request, 'itreporting/home.html', {'title': 'Homepage', 'weather_data': weather_data})
 
-   return render(request, 'itreporting/home.html', {'title': 'Welcome'})
+
 
 def about(request):
 
